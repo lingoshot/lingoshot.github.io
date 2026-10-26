@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LingoShot — learn English by playing</title>
+<meta name="description" content="LingoShot is a mobile game for learning English. Day-by-day lessons for beginners, shooting range, match pairs, fillwords, phrases, idioms, chunks, books, AI chat and more. 9 interface languages, 10,000+ words.">
+
+<!-- Open Graph: nice preview when the link is shared in messengers/social -->
+<meta property="og:title" content="LingoShot — learn English by playing">
+<meta property="og:description" content="Start from zero with day-by-day lessons, then play: 10 game modes from a shooting range to chaptered books, everyday phrases and an AI chat. Learn English through play, not by cramming.">
+<meta property="og:type" content="website">
+
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Unbounded: geometric display font with a game-like character; Inter for body text -->
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Inter:wght@400;500;600&family=Exo:wght@700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0a1512;            /* deep dark green — matches the app's game background */
+  --bg-2:#0f2019;
+  --panel:#12261e;
+  --stroke:#1e3a2e;
+  --fire:#e0632c;          /* action-orange FIRE accent */
+  --fire-2:#ff7a3d;
+  --neon:#39d98a;          /* green "hit / charged" accent */
+  --text:#eaf3ee;
+  --dim:#8fb0a2;
+  --white:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',system-ui,sans-serif;
+  line-height:1.55;
+  overflow-x:hidden;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+/* ---------- TOP BAR + BRAND ---------- */
+.lime{--lime:#abd822}
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:rgba(10,21,18,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid transparent;transition:border-color .25s ease;
+}
+.topbar.stuck{border-bottom-color:var(--stroke)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#fff}
+.brand img{width:40px;height:40px;display:block;transition:transform .5s ease}
+.brand:hover img{transform:rotate(90deg)}
+.brand span{
+  font-family:'Exo',system-ui,sans-serif;font-weight:800;
+  font-size:27px;line-height:1;letter-spacing:-.01em;color:#fff;
+}
+.brand span b{font-weight:800;color:#abd822}
+.topbar .btn-sm{padding:10px 18px;font-size:14px;border-radius:11px;box-shadow:0 4px 16px rgba(224,99,44,.3)}
+footer .brand{margin-bottom:14px}
+footer .brand span{font-size:24px}
+footer .brand img{width:34px;height:34px}
+footer .brand:hover{color:#fff}
+
+/* ---------- HERO ---------- */
+.hero{
+  position:relative;
+  padding:78px 0 64px;
+  text-align:center;
+  overflow:hidden;
+}
+/* crosshair/target motif in the background — nods to the "shooting range" theme */
+.hero::before{
+  content:"";
+  position:absolute; top:-120px; left:50%; transform:translateX(-50%);
+  width:640px; height:640px; border-radius:50%;
+  background:
+    radial-gradient(circle, transparent 0 38%, rgba(224,99,44,.10) 38% 39%, transparent 39%),
+    radial-gradient(circle, transparent 0 58%, rgba(57,217,138,.08) 58% 59%, transparent 59%),
+    radial-gradient(circle, rgba(224,99,44,.14) 0 1.5%, transparent 1.5%);
+  pointer-events:none;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--stroke);
+  background:rgba(57,217,138,.07);
+  color:var(--neon);
+  font-size:13px;font-weight:600;
+  padding:7px 15px;border-radius:100px;
+  position:relative;
+}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--neon);box-shadow:0 0 10px var(--neon)}
+h1{
+  font-family:'Unbounded',sans-serif;
+  font-weight:800;
+  font-size:clamp(38px,7vw,72px);
+  line-height:1.02;
+  letter-spacing:-.02em;
+  margin:22px 0 0;
+  position:relative;
+}
+h1 .shot{color:var(--fire)}
+.tagline{
+  font-size:clamp(17px,2.4vw,21px);
+  color:var(--dim);
+  max-width:600px;margin:20px auto 0;
+  position:relative;
+}
+.cta-row{margin-top:38px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  font-weight:700;font-size:16px;
+  padding:16px 30px;border-radius:14px;
+  text-decoration:none;transition:transform .15s ease, box-shadow .15s ease;
+}
+.btn-fire{
+  background:linear-gradient(135deg,var(--fire-2),var(--fire));
+  color:#1a0d05;
+  box-shadow:0 8px 28px rgba(224,99,44,.35);
+}
+.btn-fire:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(224,99,44,.5)}
+.btn-ghost{
+  background:transparent;border:1px solid var(--stroke);color:var(--text);
+}
+.btn-ghost:hover{border-color:var(--neon);color:var(--neon)}
+.langline{
+  margin-top:30px;font-size:13.5px;color:var(--dim);position:relative;
+}
+.langline b{color:var(--text);font-weight:600}
+
+/* ---------- STAT STRIP ---------- */
+.stats{
+  display:flex;gap:0;justify-content:center;flex-wrap:wrap;
+  margin:56px auto 0;max-width:900px;
+  border:1px solid var(--stroke);border-radius:16px;
+  background:var(--panel);overflow:hidden;
+}
+.stat{flex:1;min-width:150px;padding:24px 18px;text-align:center;border-right:1px solid var(--stroke)}
+.stat:last-child{border-right:none}
+.stat .num{font-family:'Unbounded',sans-serif;font-weight:800;font-size:30px;color:var(--fire)}
+.stat .lbl{font-size:13px;color:var(--dim);margin-top:4px}
+
+/* ---------- LESSONS SPOTLIGHT ---------- */
+.spot{background:var(--bg-2);border-top:1px solid var(--stroke);border-bottom:1px solid var(--stroke)}
+.spot-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.tag{
+  display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--neon);border:1px solid var(--stroke);background:rgba(57,217,138,.07);
+  padding:5px 12px;border-radius:100px;margin-bottom:16px;
+}
+.spot h2{
+  font-family:'Unbounded',sans-serif;font-weight:700;
+  font-size:clamp(26px,4vw,40px);letter-spacing:-.01em;
+}
+.spot .lead{color:var(--dim);margin-top:14px;font-size:16.5px;max-width:520px}
+.ticks{list-style:none;margin-top:24px;display:grid;gap:14px}
+.ticks li{position:relative;padding-left:34px;font-size:15.5px;color:var(--text)}
+.ticks li span{color:var(--dim)}
+.ticks li::before{
+  content:"✓";position:absolute;left:0;top:1px;
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(57,217,138,.14);color:var(--neon);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;
+}
+.spot-shot{display:flex;justify-content:center}
+.spot-shot img{
+  width:100%;max-width:290px;
+  border-radius:26px;border:1px solid var(--stroke);
+  box-shadow:0 20px 50px rgba(0,0,0,.5);display:block;
+}
+
+/* ---------- SCREENSHOT CAROUSEL ---------- */
+.car{position:relative}
+.car-track{
+  display:flex;gap:22px;overflow-x:auto;
+  padding:44px calc(50% - 130px) 48px;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 86%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 86%,transparent 100%);          /* first/last slide can sit in the center */
+  scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;
+}
+.car-track::-webkit-scrollbar{display:none}
+.slide{
+  flex:0 0 260px;scroll-snap-align:center;
+  transform:scale(.86);opacity:.5;
+  transition:transform .35s ease,opacity .35s ease;
+  cursor:pointer;
+}
+.slide.on{transform:scale(1);opacity:1}
+.slide img{
+  width:100%;display:block;
+  border-radius:24px;border:1px solid var(--stroke);
+  box-shadow:0 16px 40px rgba(0,0,0,.45);
+}
+.slide.on img{box-shadow:0 18px 44px rgba(57,217,138,.16),0 12px 30px rgba(0,0,0,.45);border-color:rgba(57,217,138,.4)}
+.car-btn{
+  position:absolute;top:calc(50% - 22px);z-index:2;
+  width:46px;height:46px;border-radius:50%;
+  background:rgba(10,21,18,.82);border:1px solid var(--stroke);color:var(--text);
+  font-size:20px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);transition:border-color .2s ease,color .2s ease,transform .2s ease;
+}
+.car-btn:hover{border-color:var(--neon);color:var(--neon);transform:scale(1.06)}
+.car-btn.prev{left:max(8px,calc(50% - 420px))}
+.car-btn.next{right:max(8px,calc(50% - 420px))}
+.dots{display:flex;gap:9px;justify-content:center;margin-top:6px}
+.dots button{
+  width:9px;height:9px;border-radius:50%;border:0;padding:0;cursor:pointer;
+  background:var(--stroke);transition:width .25s ease,background .25s ease;
+}
+.dots button.on{width:26px;border-radius:100px;background:var(--neon)}
+.car-cap{text-align:center;color:var(--dim);font-size:14px;margin-top:14px;min-height:22px}
+
+/* ---------- SCROLL REVEAL (only when JS is on) ---------- */
+.js .rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.js .rv.in{opacity:1;transform:none}
+.js .modes .rv:nth-child(even){transition-delay:.08s}
+
+/* ---------- LANGUAGES ---------- */
+.lang-pills{display:flex;flex-wrap:wrap;gap:12px}
+.pill{
+  display:inline-block;
+  background:var(--panel);border:1px solid var(--stroke);
+  border-radius:100px;padding:10px 22px;
+  font-size:15px;font-weight:600;color:var(--text);
+  transition:border-color .2s ease,color .2s ease;
+}
+.pill:hover{border-color:var(--neon);color:var(--neon)}
+
+/* ---------- MODES ---------- */
+.section{padding:76px 0}
+.section-head{max-width:620px;margin-bottom:44px}
+.section-head h2{
+  font-family:'Unbounded',sans-serif;font-weight:700;
+  font-size:clamp(26px,4vw,40px);letter-spacing:-.01em;
+}
+.section-head p{color:var(--dim);margin-top:12px;font-size:16px}
+
+.modes{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.mode{
+  background:var(--panel);border:1px solid var(--stroke);
+  border-radius:18px;padding:26px;
+  transition:border-color .2s ease, transform .2s ease;
+}
+.mode:hover{border-color:var(--fire);transform:translateY(-3px)}
+.mode .ico{font-size:30px;line-height:1}
+.mode h3{
+  font-family:'Unbounded',sans-serif;font-weight:600;
+  font-size:20px;margin:14px 0 8px;
+}
+.mode h3 em{
+  font-style:normal;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--neon);border:1px solid var(--stroke);border-radius:100px;
+  padding:2px 8px;margin-left:8px;vertical-align:middle;
+}
+.mode p{color:var(--dim);font-size:15px}
+.mode.wide{grid-column:1 / -1}
+
+/* ---------- HOW / VALUE ---------- */
+.value{
+  background:var(--bg-2);border-top:1px solid var(--stroke);border-bottom:1px solid var(--stroke);
+}
+.value-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:34px 28px}
+.val h3{font-family:'Unbounded',sans-serif;font-weight:600;font-size:17px;margin-bottom:8px;color:var(--neon)}
+.val p{color:var(--dim);font-size:15px}
+
+/* ---------- FINAL CTA ---------- */
+.final{text-align:center;padding:88px 0}
+.final h2{
+  font-family:'Unbounded',sans-serif;font-weight:800;
+  font-size:clamp(28px,5vw,48px);letter-spacing:-.02em;
+}
+.final p{color:var(--dim);margin:16px auto 34px;max-width:480px}
+
+footer{
+  border-top:1px solid var(--stroke);
+  padding:34px 0;text-align:center;color:var(--dim);font-size:13.5px;
+}
+footer a{color:var(--dim);text-decoration:underline}
+
+@media(max-width:820px){
+  .spot-grid{grid-template-columns:1fr;gap:34px}
+  .spot-shot{order:-1}
+}
+@media(max-width:640px){
+  .modes{grid-template-columns:1fr}
+  .mode.wide{grid-column:auto}
+  .value-grid{grid-template-columns:1fr;gap:20px}
+  .stat{border-right:none;border-bottom:1px solid var(--stroke);flex-basis:100%}
+  .stat:last-child{border-bottom:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<nav class="topbar" id="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="LingoShot">
+      <img src="logo.svg" alt="" width="40" height="40">
+      <span>Lingo<b>Shot</b></span>
+    </a>
+    <a class="btn btn-fire btn-sm" href="https://play.google.com/store/apps/details?id=com.lingoshot.app&hl=en-US">Google Play</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="badge"><span class="dot"></span>Now on Google Play</span>
+    <h1>English that<br>hooks you<span class="shot">.</span></h1>
+    <p class="tagline">Start from zero with short day-by-day lessons, then keep it fun with games you actually want to come back to tomorrow. Stop cramming words — shoot them down instead.</p>
+    <div class="cta-row">
+      <!-- REPLACE href with your Google Play link -->
+      <a class="btn btn-fire" href="https://play.google.com/store/apps/details?id=com.lingoshot.app&hl=en-US">Get it on Google Play</a>
+      <a class="btn btn-ghost" href="#lessons">See what's new</a>
+    </div>
+    <p class="langline">🌍 Interface in <b>9 languages</b> · 10,000+ words and counting · most of the app works offline</p>
+  </div>
+
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><div class="num">10</div><div class="lbl">game modes</div></div>
+      <div class="stat"><div class="num">10,000+</div><div class="lbl">words to learn</div></div>
+      <div class="stat"><div class="num">750+</div><div class="lbl">everyday phrases</div></div>
+      <div class="stat"><div class="num">9</div><div class="lbl">interface languages</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== NEW: Lessons ===== -->
+<section class="section spot" id="lessons">
+  <div class="wrap">
+    <div class="spot-grid">
+      <div>
+        <span class="tag">New · Lessons</span>
+        <h2>Never learned English? Start here.</h2>
+        <p class="lead">A day-by-day course for beginners. Open the app, tap today's lesson, and in about ten minutes you've learned something you can actually say.</p>
+        <ul class="ticks">
+          <li><b>4 short lessons a day.</b> <span>Each day has one topic — greetings, family, food, shopping, your home, your job — and a clear goal.</span></li>
+          <li><b>A path you can see.</b> <span>A level map shows your days, stars and what comes next. New days keep arriving.</span></li>
+          <li><b>Reviews that stick.</b> <span>Finish a day with a quick round on the words you just learned, and get a reminder when the next day opens.</span></li>
+          <li><b>Your language, your progress.</b> <span>Lessons explain things in your own language, and your progress is saved to your account.</span></li>
+        </ul>
+      </div>
+      <div class="spot-shot">
+        <img src="screenshot-lessons.jpg" alt="LingoShot Lessons — level map with days, stars and today's lesson" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="screenshots">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>See it in action</h2>
+      <p>Pick your language, jump into a lesson or a game mode, and start shooting down words — here's what it looks like.</p>
+    </div>
+    <div class="car" id="car">
+      <button class="car-btn prev" type="button" aria-label="Previous screenshot">&#8249;</button>
+      <div class="car-track" id="car-track" tabindex="0" aria-label="App screenshots">
+        <div class="slide"><img src="mockup-1-home.jpg" alt="LingoShot home screen — game modes and your progress" data-cap="All your game modes on one screen" loading="lazy"></div>
+        <div class="slide"><img src="mockup-2-shooting.jpg" alt="Shooting Tir — translate the word and shoot the target" data-cap="Shooting Tir — translate and shoot" loading="lazy"></div>
+        <div class="slide"><img src="mockup-3-pairs.jpg" alt="Match Pairs — connect words with their translations" data-cap="Match Pairs — connect words with translations" loading="lazy"></div>
+        <div class="slide"><img src="mockup-4-fillwords.jpg" alt="Fillwords — find hidden words in the letter grid" data-cap="Fillwords — find hidden words" loading="lazy"></div>
+        <div class="slide"><img src="mockup-5-phrases-idioms.jpg" alt="Idiom Quiz and phrases — real-life English" data-cap="Idioms and everyday phrases" loading="lazy"></div>
+        <div class="slide"><img src="mockup-6-morphemes.jpg" alt="Morph Bubble — build words from prefixes, roots and suffixes" data-cap="Morph Bubble — build words" loading="lazy"></div>
+        <div class="slide"><img src="mockup-7-stories.jpg" alt="Stories and books with translations and voiceover" data-cap="Stories and books with tap-to-translate" loading="lazy"></div>
+        <div class="slide"><img src="mockup-8-languages.jpg" alt="Interface in 9 native languages" data-cap="Interface in 9 languages" loading="lazy"></div>
+      </div>
+      <button class="car-btn next" type="button" aria-label="Next screenshot">&#8250;</button>
+      <div class="dots" id="car-dots"></div>
+      <p class="car-cap" id="car-cap"></p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="languages" style="padding-top:20px">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Available in your language</h2>
+      <p>Learn English with the app's interface in your own language — pick one on first launch and switch anytime.</p>
+    </div>
+    <div class="lang-pills">
+      <span class="pill">Deutsch</span>
+      <span class="pill">Español</span>
+      <span class="pill">Français</span>
+      <span class="pill">हिन्दी</span>
+      <span class="pill">Português</span>
+      <span class="pill">Русский</span>
+      <span class="pill">Türkçe</span>
+      <span class="pill">Українська</span>
+      <span class="pill">中文</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="modes">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Ten ways to learn</h2>
+      <p>Every mode trains something different — from reaction speed to real conversation. It never gets boring.</p>
+    </div>
+    <div class="modes">
+      <article class="mode">
+        <div class="ico">🎯</div>
+        <h3>Shooting Tir</h3>
+        <p>A word flies across the screen — recall the translation and type it before it's gone. Smart spaced repetition brings it back at the right moment and locks it into memory.</p>
+      </article>
+      <article class="mode">
+        <div class="ico">🔗</div>
+        <h3>Match Pairs</h3>
+        <p>Tap a word, then its translation. Clear the board by matching every pair — quick, simple, and great for reviewing what you've learned.</p>
+      </article>
+      <article class="mode">
+        <div class="ico">🔍</div>
+        <h3>Fillwords</h3>
+        <p>Your words are hidden in a grid of letters. Track them all down like a seasoned tracker — a workout for attention and spelling.</p>
+      </article>
+      <article class="mode">
+        <div class="ico">💬</div>
+        <h3>Phrases</h3>
+        <p>Build real, everyday sentences word by word — 750+ phrases for shopping, banking, travel, and small talk. Speak like a local, not a textbook.</p>
+      </article>
+      <article class="mode">
+        <div class="ico">💡</div>
+        <h3>Idiom Quiz</h3>
+        <p>Feel like you're on "Who Wants to Be a Millionaire": pick the right answer and crack the meaning of tricky English expressions.</p>
+      </article>
+      <article class="mode">
+        <div class="ico">🧱</div>
+        <h3>Chunks</h3>
+        <p>Ready-made blocks like "Could you…", "Let me know" or "have to" — each with a translation, examples and audio. Learn how English is really put together.</p>
+      </article>
+      <article class="mode">
+        <div class="ico">🤖</div>
+        <h3>AI Chat <em>Beta</em></h3>
+        <p>Practice real conversations — a hotel, a taxi, a shop, a work meeting or any topic you choose. The AI answers like a real person and shows how to say it better.</p>
+      </article>
+      <article class="mode">
+        <div class="ico">🧩</div>
+        <h3>Morph Bubble</h3>
+        <p>Add a suffix or ending to a word — and one word turns into several. Your vocabulary grows the clever way.</p>
+      </article>
+      <article class="mode">
+        <div class="ico">📖</div>
+        <h3>Funny Stories</h3>
+        <p>Short texts you can read and listen to. Hit an unfamiliar word — tap it, see the translation, and send it straight to "Shooting Tir" to learn it.</p>
+      </article>
+      <article class="mode">
+        <div class="ico">📚</div>
+        <h3>Books</h3>
+        <p>Longer stories told chapter by chapter, so you always have a reason to come back. Pin your current book to the top, and finished chapters light up.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section value">
+  <div class="wrap">
+    <div class="value-grid">
+      <div class="val">
+        <h3>Recall it, don't cram it</h3>
+        <p>Words pop up against the clock — that's what makes them stick, instead of fading by morning.</p>
+      </div>
+      <div class="val">
+        <h3>Keep the streak</h3>
+        <p>Play every day to keep your flame burning and earn bonus points at 3, 7, 14 and 30 days. A gentle reminder helps if you forget.</p>
+      </div>
+      <div class="val">
+        <h3>Race the world</h3>
+        <p>Score points in every mode and climb the global leaderboard. Your own rank is always one tap away.</p>
+      </div>
+      <div class="val">
+        <h3>At your own pace</h3>
+        <p>Nobody's rushing you. A couple of minutes in line is already progress.</p>
+      </div>
+      <div class="val">
+        <h3>From A0 to IELTS words</h3>
+        <p>Beginner lessons and basic words first, then idioms and advanced vocabulary when you're ready.</p>
+      </div>
+      <div class="val">
+        <h3>Always with you</h3>
+        <p>Words, games and reading work offline — on the subway, on a flight, anywhere. Only the AI chat and account sync need internet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Ready to start?</h2>
+    <p>Your first words are free, no sign-up needed. Install it and play for a couple of minutes right now.</p>
+    <div class="cta-row">
+      <!-- REPLACE href with your Google Play link -->
+      <a class="btn btn-fire" href="https://play.google.com/store/apps/details?id=com.lingoshot.app&hl=en-US">Get it on Google Play</a>
+      <!-- Telegram: replace href or remove this block if you don't need the channel -->
+      <a class="btn btn-ghost" href="https://t.me/lingoshotapp">Our Telegram</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="LingoShot"><img src="logo.svg" alt="" width="34" height="34"><span>Lingo<b>Shot</b></span></a><br>
+    © 2026 · Learn English by playing<br>
+    <a href="privacy.html">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var tb=document.getElementById('topbar'); function onS(){tb.classList.toggle('stuck',window.scrollY>8)} onS(); window.addEventListener('scroll',onS,{passive:true});
+
+  /* ---- scroll reveal ---- */
+  var targets=document.querySelectorAll('.section-head,.spot-grid,.mode,.val,.stats,.final .wrap,.lang-pills,.car');
+  targets.forEach(function(el){el.classList.add('rv')});
+  if('IntersectionObserver' in window&&!reduce){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+    targets.forEach(function(el){io.observe(el)});
+  }else{targets.forEach(function(el){el.classList.add('in')})}
+
+  /* ---- carousel ---- */
+  var track=document.getElementById('car-track'); if(!track)return;
+  var slides=[].slice.call(track.children), dotsEl=document.getElementById('car-dots'), cap=document.getElementById('car-cap');
+  var prev=document.querySelector('.car-btn.prev'), next=document.querySelector('.car-btn.next');
+  var cur=0, timer=null, userTouched=false;
+  slides.forEach(function(sl,i){
+    var d=document.createElement('button'); d.type='button'; d.setAttribute('aria-label','Screenshot '+(i+1));
+    d.onclick=function(){go(i,true)}; dotsEl.appendChild(d);
+    sl.onclick=function(){go(i,true)};
+  });
+  var dots=[].slice.call(dotsEl.children);
+  function mark(i){
+    cur=i;
+    slides.forEach(function(s,k){s.classList.toggle('on',k===i)});
+    dots.forEach(function(d,k){d.classList.toggle('on',k===i)});
+    var im=slides[i].querySelector('img'); cap.textContent=im?im.getAttribute('data-cap')||'':'';
+  }
+  function go(i,manual){
+    if(i<0)i=slides.length-1; if(i>=slides.length)i=0;
+    var s=slides[i], left=s.offsetLeft-(track.clientWidth-s.clientWidth)/2;
+    track.scrollTo({left:left,behavior:reduce?'auto':'smooth'});
+    mark(i); if(manual){userTouched=true;stop()}
+  }
+  function nearest(){
+    var c=track.scrollLeft+track.clientWidth/2, best=0, bd=1e9;
+    slides.forEach(function(s,k){var d=Math.abs(s.offsetLeft+s.clientWidth/2-c); if(d<bd){bd=d;best=k}});
+    return best;
+  }
+  var st; track.addEventListener('scroll',function(){clearTimeout(st); st=setTimeout(function(){var n=nearest(); if(n!==cur)mark(n)},60)},{passive:true});
+  prev.onclick=function(){go(cur-1,true)}; next.onclick=function(){go(cur+1,true)};
+  track.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'){go(cur-1,true);e.preventDefault()}if(e.key==='ArrowRight'){go(cur+1,true);e.preventDefault()}});
+  ['pointerdown','touchstart','wheel'].forEach(function(ev){track.addEventListener(ev,function(){userTouched=true;stop()},{passive:true})});
+
+  /* autoplay: runs only while the carousel is on screen, stops after the visitor interacts */
+  function play(){ if(reduce||userTouched||timer)return; timer=setInterval(function(){go(cur+1,false)},3200) }
+  function stop(){ clearInterval(timer); timer=null }
+  var car=document.getElementById('car');
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){e.isIntersecting?play():stop()})},{threshold:.4}).observe(car);
+  }
+  car.addEventListener('mouseenter',stop); car.addEventListener('mouseleave',function(){if(!userTouched)play()});
+  mark(0); track.scrollLeft=0;
+  window.addEventListener('load',function(){go(0,false)});
+})();
+</script>
+</body>
+</html>
